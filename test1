@@ -1,0 +1,155 @@
+#include <ESP8266WiFi.h>
+
+#define LED D2  
+
+ 
+
+  const char *ssid = "AMIR";  
+const char *password = "09363749595";
+
+unsigned char led=0;
+
+WiFiServer server(80);
+
+ 
+
+void setup() {
+
+  Serial.begin(115200);  
+
+  pinMode(D4, OUTPUT);
+
+  digitalWrite(D4, LOW);
+
+ 
+
+
+  Serial.println();
+
+  Serial.println();
+
+  Serial.print("Connecting to ");
+
+  Serial.println(ssid);
+
+ 
+
+  WiFi.begin(ssid, password);
+
+ 
+
+  while (WiFi.status() != WL_CONNECTED) {
+
+    delay(500);
+
+    Serial.print(".");
+
+  }
+
+  Serial.println("");
+
+  Serial.println("WiFi connected");
+
+ 
+
+
+  server.begin();
+
+  Serial.println("Server started at...");
+
+  Serial.println(WiFi.localIP());
+
+ 
+
+}
+
+ 
+
+void loop() {
+
+
+
+  WiFiClient client = server.available();
+
+  if (!client) {
+
+    return;
+
+  }
+
+ 
+
+
+  Serial.println("new client");
+
+  while (! client.available())
+
+  {
+
+    delay (1);
+
+  }
+
+ 
+
+ 
+
+
+  String req = client.readStringUntil('\r');
+
+  Serial.println(req);
+
+  client.flush();
+
+ 
+
+
+ 
+
+  if (req.indexOf("/on") != -1)  {
+
+    led=0;
+
+    digitalWrite(2, LOW);
+
+    Serial.println("LED OFF");
+
+  }
+
+  else if(req.indexOf("/off") != -1)
+
+  {
+
+    led=1;
+
+    digitalWrite(2,HIGH);
+
+    Serial.println("LED ON");
+
+  }
+
+ 
+
+
+client.println("HTTP/1.1 200 OK");
+client.println("Content-Type: text/html");
+client.println("Connection: close");
+client.println("");
+client.println("<!DOCTYPE HTML>");
+client.println("<HTML >");
+client.println("<br />");
+client.println("<center>");
+client.println("<H2> LIGHT </H2>");
+client.println("<a href=\"/off\"\"> <button style='background-color:#F00;'> OFF </button> </a>");
+client.println("<a href=\"/on\"\"> <button style='background-color:#0F0;'> ON </button> </a>");
+client.println("</html>");
+client.println("</center>");
+delay(1);
+
+  Serial.println("Client disonnected");
+
+  Serial.println("");
+
+ 
+
+}
